@@ -20,6 +20,13 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    // Добавьте следующую строку, чтобы по умолчанию открывался ваш HTML-файл
+    endpoints.MapFallbackToFile("index.html");
+});
+
 app.MapRazorPages();
 
 app.Run();

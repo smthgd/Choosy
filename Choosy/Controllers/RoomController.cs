@@ -13,6 +13,7 @@ public class RoomController : ControllerBase
     {
         var roomCode = Guid.NewGuid().ToString();
         rooms[roomCode] = new List<Movie>(); // Здесь вы можете добавить логику для получения фильмов из API
+        
         return Ok(roomCode);
     }
 
@@ -23,6 +24,7 @@ public class RoomController : ControllerBase
         {
             return NotFound("Room not found");
         }
+        
         return Ok();
     }
 

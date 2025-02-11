@@ -9,8 +9,48 @@
     </style>
 </head>
 <body>
-    <h1>Movie Swipe App</h1>
-    <input type="text" id="roomCode" placeholder="Enter room code">
-    <button id="createRoom">Create Room</button>
-    <button id="joinRoom">Join Room</button>
+<h1>Movie Swipe App</h1>
+<input type="text" id="roomCode" placeholder="Enter room code">
+<button id="createRoom">Create Room</button>
+<button id="joinRoom">Join Room</button>
 
+<script>
+    document.getElementById('createRoom').addEventListener('click', async () => {
+        const response = await fetch('/api/room/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const roomCode = await response.text();
+        document.getElementById('roomCode').value = roomCode;
+    });
+
+    document.getElementById('joinRoom').addEventListener('click', async () => {
+        const roomCode = document.getElementById('roomCode').value;
+        const response = await fetch(`/api/room/join/${roomCode}`, {
+            method: 'POST'
+        });
+        if (response.ok) {
+            // Логика для получения фильмов и отображения их на экране
+            // Например, вы можете вызвать функцию для получения фильмов
+            // getMovies(roomCode);
+        } else {
+            alert('Room not found');
+        }
+    });
+
+    // Пример функции для получения фильмов (добавьте свою логику)
+    async function getMovies(roomCode) {
+        const response = await fetch(`/api/room/${roomCode}/movies`);
+        if (response.ok) {
+            const movies = await response.json();
+            // Логика для отображения фильмов на экране
+            console.log(movies);
+        } else {
+            alert('Failed to load movies');
+        }
+    }
+</script>
+</body>
+</html>
