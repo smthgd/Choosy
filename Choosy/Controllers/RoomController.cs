@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System;
 
 [ApiController]
@@ -29,10 +32,30 @@ public class RoomController : ControllerBase
     }
 
     [HttpGet("{roomCode}/movies")]
-    public IActionResult GetMovies(string roomCode)
+    public async Task<IActionResult> GetMovies(string roomCode)
     {
-        // Здесь вы можете получить фильмы из TMDb API и вернуть их
-        return Ok(rooms[roomCode]);
+        if (!rooms.ContainsKey(roomCode))
+        {
+            return NotFound("Room not found");
+        }
+
+        // Пример получения фильмов из TMDb API
+        using (var httpClient = new HttpClient())
+        {
+            var apiKey = "YOUR_TMDB_API_KEY"; // Замените на ваш ключ API
+            var response = await httpClient.GetAsync($"https://api.themoviedb.org/3/movie/popular?api_key={apiKey}");
+        
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var movies = JsonSerializer.Deserialize<List<Movie>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true // Игнорировать регистр имен свойств
+                });
+                return Ok(movies);
+            }
+            return StatusCode((int)response.StatusCode, "Failed to load movies");
+        }
     }
 
     [HttpPost("{roomCode}/swipe")]
