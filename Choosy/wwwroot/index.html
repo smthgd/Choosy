@@ -6,6 +6,19 @@
     <title>Movie Swipe App</title>
     <style>
         /* Добавьте стили для вашего интерфейса */
+        .movie-card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 10px;
+            padding: 10px;
+            display: inline-block;
+            width: 150px; /* Ширина карточки */
+            text-align: center;
+        }
+        .movie-card img {
+            max-width: 100%; /* Ограничение ширины изображения */
+            height: auto; /* Автоматическая высота */
+        }
     </style>
 </head>
 <body>
@@ -13,6 +26,9 @@
 <input type="text" id="roomCode" placeholder="Enter room code">
 <button id="createRoom">Create Room</button>
 <button id="joinRoom">Join Room</button>
+
+<!-- Контейнер для отображения фильмов -->
+<div id="moviesContainer"></div>
 
 <script>
     document.getElementById('createRoom').addEventListener('click', async () => {
@@ -33,20 +49,29 @@
         });
         if (response.ok) {
             // Логика для получения фильмов и отображения их на экране
-            // Например, вы можете вызвать функцию для получения фильмов
             getMovies(roomCode);
         } else {
             alert('Room not found');
         }
     });
 
-    // Пример функции для получения фильмов (добавьте свою логику)
     async function getMovies(roomCode) {
         const response = await fetch(`/api/room/${roomCode}/movies`);
         if (response.ok) {
             const movies = await response.json();
-            // Логика для отображения фильмов на экране
-            console.log(movies);
+            const moviesContainer = document.getElementById('moviesContainer');
+            moviesContainer.innerHTML = ''; // Очистить контейнер перед добавлением новых фильмов
+
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.innerHTML = `
+                    <img src="${movie.PosterUrl}" alt="${movie.Name}" />
+                    <h3>${movie.Name}</h3>
+                    <p>Rating: ${movie.Rating}</p>
+                `;
+                moviesContainer.appendChild(movieCard);
+            });
         } else {
             alert('Failed to load movies');
         }
