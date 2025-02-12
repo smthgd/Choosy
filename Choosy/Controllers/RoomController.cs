@@ -20,7 +20,7 @@ public class RoomController : ControllerBase
         return Ok(roomCode);
     }
 
-    [HttpPost("{roomCode}/join")]
+    [HttpPost("join/{roomCode}")]
     public IActionResult JoinRoom(string roomCode)
     {
         if (!rooms.ContainsKey(roomCode))
@@ -52,8 +52,10 @@ public class RoomController : ControllerBase
                 {
                     PropertyNameCaseInsensitive = true // Игнорировать регистр имен свойств
                 });
+                
                 return Ok(movies);
             }
+
             return StatusCode((int)response.StatusCode, "Failed to load movies");
         }
     }
