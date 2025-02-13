@@ -16,7 +16,7 @@ public class RoomController : ControllerBase
     {
         var roomCode = Guid.NewGuid().ToString();
         rooms[roomCode] = new List<Movie>(); // Здесь вы можете добавить логику для получения фильмов из API
-        
+
         return Ok(roomCode);
     }
 
@@ -27,49 +27,49 @@ public class RoomController : ControllerBase
         {
             return NotFound("Room not found");
         }
-        
+
         return Ok();
     }
 
     [HttpGet("{roomCode}/movies")]
-public async Task<IActionResult> GetMovies(string roomCode)
-{
-    if (!rooms.ContainsKey(roomCode))
+    public async Task<IActionResult> GetMovies(string roomCode)
     {
-        return NotFound("Room not found");
-    }
-
-    using (var httpClient = new HttpClient())
-    {
-        var apiKey = "KTZV0EX-47647JH-JDRJYQ8-HSENZ44"; // Замените на ваш ключ API
-        httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
-        var response = await httpClient.GetAsync("https://api.kinopoisk.dev/v1.3/movie?limit=30");
-        
-        if (response.IsSuccessStatusCode)
+        if (!rooms.ContainsKey(roomCode))
         {
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var moviesResponse = JsonSerializer.Deserialize<KinopoiskResponse>(jsonResponse, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (moviesResponse != null && moviesResponse.Docs != null)
-            {
-                var movies = moviesResponse.Docs.Select(m => new Movie
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    Rating = m.Rating.Kp, // Используем рейтинг из объекта Rating
-                    PosterUrl = m.Poster.Url // Используем URL постера из объекта Poster
-                }).ToList();
-
-                return Ok(movies);
-            }
+            return NotFound("Room not found");
         }
 
-        return StatusCode((int)response.StatusCode, "Failed to load movies");
+        using (var httpClient = new HttpClient())
+        {
+            var apiKey = "KTZV0EX-47647JH-JDRJYQ8-HSENZ44"; // Замените на ваш ключ API
+            httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+            var response = await httpClient.GetAsync("https://api.kinopoisk.dev/v1.3/movie?limit=30");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var moviesResponse = JsonSerializer.Deserialize<KinopoiskResponse>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (moviesResponse != null && moviesResponse.Docs != null)
+                {
+                    var movies = moviesResponse.Docs.Select(m => new Movie
+                    {
+                        Id = m.Id,
+                        Name = m.Name,
+                        Rating = m.Rating.Kp, // Используем рейтинг из объекта Rating
+                        PosterUrl = m.Poster.Url // Используем URL постера из объекта Poster
+                    }).ToList();
+
+                    return Ok(movies);
+                }
+            }
+
+            return StatusCode((int)response.StatusCode, "Failed to load movies");
+        }
     }
-}
 
 
     [HttpPost("{roomCode}/swipe")]

@@ -49,7 +49,7 @@
         });
         if (response.ok) {
             // Логика для получения фильмов и отображения их на экране
-            getMovies(roomCode);
+            await getMovies(roomCode);
         } else {
             alert('Room not found');
         }
@@ -63,6 +63,7 @@
             moviesContainer.innerHTML = ''; // Очистить контейнер перед добавлением новых фильмов
 
             movies.forEach(movie => {
+                console.log(movie)
                 const movieCard = document.createElement('div');
                 movieCard.className = 'movie-card';
                 movieCard.innerHTML = `
