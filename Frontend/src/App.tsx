@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import CreateRoom from './components/CreateRoom';
+import JoinRoom from './components/JoinRoom';
+import MovieList from './components/MovieList/MovieList';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+    const [roomCode, setRoomCode] = useState<string>('');
+    const [movies, setMovies] = useState<any[]>([]); // Замените any на конкретный тип, если у вас есть интерфейс для фильмов
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React + Sema</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    const createRoom = async () => {
+        const response = await fetch('/api/room/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const newRoomCode = await response.text();
+        setRoomCode(newRoomCode);
+    };
+
+    const joinRoom = async () => {
+        const response = await fetch(`/api/room/join/${roomCode}`, {
+            method: 'POST',
+        });
+        if (response.ok) {
+            await getMovies(roomCode);
+        } else {
+            alert('Room not found');
+        }
+    };
+
+    const getMovies = async (roomCode: string) => {
+        const response = await fetch(`/api/room/${roomCode}/movies`);
+        if (response.ok) {
+            const moviesData = await response.json();
+            setMovies(moviesData);
+        } else {
+            alert('Failed to load movies');
+        }
+    };
+
+    return (
+        <>
+            <div>
+                <h1>Movie Swipe App</h1>
+                <CreateRoom onCreate={createRoom} />
+                <JoinRoom roomCode={roomCode} onJoin={joinRoom} onChange={(e) => setRoomCode(e.target.value)} />
+                <MovieList movies={movies} />
+            </div>
+        </>
+    );
 }
 
-export default App
+export default App;

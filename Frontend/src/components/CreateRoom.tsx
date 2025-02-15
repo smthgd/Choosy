@@ -1,6 +1,10 @@
 import React from 'react';
 
-const CreateRoom = ({ onCreate }) => {
+interface CreateRoomProps {
+    onCreate: () => void;
+}
+
+const CreateRoom: React.FC<CreateRoomProps> = ({ onCreate }) => {
     return (
         <button onClick={onCreate}>Create Room</button>
     );

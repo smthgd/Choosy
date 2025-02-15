@@ -1,0 +1,20 @@
+#moviesContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.movie-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 10px;
+    padding: 10px;
+    display: inline-block;
+    width: 150px; /* Ширина карточки */
+    text-align: center;
+}
+
+.movie-card img {
+    max-width: 100%; /* Ограничение ширины изображения */
+    height: auto; /* Автоматическая высота */
+}

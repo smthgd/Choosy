@@ -1,6 +1,12 @@
 import React from 'react';
 
-const JoinRoom = ({ roomCode, onJoin, onChange }) => {
+interface JoinRoomProps {
+    roomCode: string;
+    onJoin: () => void;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const JoinRoom: React.FC<JoinRoomProps> = ({ roomCode, onJoin, onChange }) => {
     return (
         <div>
             <input
