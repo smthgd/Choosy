@@ -1,4 +1,5 @@
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,12 +18,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Укажите папку для статических файлов
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(@"C:\Users\sem06\source\repos\Choosy\Frontend"),
-    RequestPath = ""
-});
+// Убедитесь, что статические файлы не обрабатываются здесь, если Frontend работает на другом хосте
+// app.UseStaticFiles(new StaticFileOptions
+// {
+//     FileProvider = new PhysicalFileProvider(@"C:\Users\sem06\source\repos\Choosy\Frontend"),
+//     RequestPath = ""
+// });
 
 app.UseRouting();
 
@@ -33,9 +34,20 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers(); // Обработка API запросов
 
-    // Перенаправление всех остальных запросов на ваш React frontend
-    endpoints.MapFallbackToFile("index.html"); // Убедитесь, что ваш React frontend собран и находится в папке Frontend
+    // Если Frontend работает на другом хосте, вам не нужно перенаправлять запросы на index.html
+    // Если вы хотите, чтобы ваш Backend возвращал CORS заголовки, добавьте CORS политику
 });
+
+// Если вы хотите использовать CORS, добавьте следующую строку
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("http://localhost:5173/") // Замените на URL вашего Frontend
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+});
+
+app.UseCors("AllowFrontend");
 
 app.MapRazorPages();
 
