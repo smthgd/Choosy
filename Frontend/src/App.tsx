@@ -9,7 +9,7 @@ const App: React.FC = () => {
     const [movies, setMovies] = useState<any[]>([]); // Замените any на конкретный тип, если у вас есть интерфейс для фильмов
 
     const createRoom = async () => {
-        const response = await fetch('/api/room/create', {
+        const response = await fetch('http://localhost:5104/api/room/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ const App: React.FC = () => {
     };
 
     const joinRoom = async () => {
-        const response = await fetch(`/api/room/join/${roomCode}`, {
+        const response = await fetch(`http://localhost:5104/api/room/join/${roomCode}`, {
             method: 'POST',
         });
         if (response.ok) {
@@ -31,7 +31,7 @@ const App: React.FC = () => {
     };
 
     const getMovies = async (roomCode: string) => {
-        const response = await fetch(`/api/room/${roomCode}/movies`);
+        const response = await fetch(`http://localhost:5104/api/room/${roomCode}/movies`);
         if (response.ok) {
             const moviesData = await response.json();
             setMovies(moviesData);

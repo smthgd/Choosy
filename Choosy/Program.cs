@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Builder;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Настройка CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        builder => builder.WithOrigins("http://localhost:5173") // Замените на URL вашего Frontend
+        builder => builder.WithOrigins("*") // Замените на URL вашего Frontend
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
@@ -14,6 +12,9 @@ builder.Services.AddCors(options =>
 // Добавление служб в контейнер
 builder.Services.AddRazorPages();
 builder.Services.AddControllers(); // Убедитесь, что контроллеры добавлены
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build(); // Здесь мы создаем приложение
 
@@ -24,12 +25,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseHttpsRedirection();
 
 app.UseRouting();
 
 // Переместите CORS перед авторизацией
-//app.UseCors("AllowFrontend");
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 

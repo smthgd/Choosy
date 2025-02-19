@@ -2,10 +2,10 @@ import React from 'react';
 import './MovieList.css';
 
 interface Movie {
-    Id: number;
-    Name: string;
-    PosterUrl: string;
-    Rating: number;
+    id: number;
+    name: string;
+    posterUrl: string;
+    rating: number;
 }
 
 interface MovieListProps {
@@ -13,15 +13,18 @@ interface MovieListProps {
 }
 
 const MovieList: React.FC<MovieListProps> = ({ movies }) => {
+    console.log(movies);
     return (
         <div id="moviesContainer">
-            {movies.map((movie) => (
-                <div key={movie.Id} className="movie-card">
-                    <img src={movie.PosterUrl} alt={movie.Name} />
-                    <h3>{movie.Name}</h3>
-                    <p>Rating: {movie.Rating}</p>
-                </div>
-            ))}
+            {movies.map((movie) => {
+                   return (
+                    <div key={movie.id} className="movie-card">
+                   <img src={movie.posterUrl} alt={movie.name} />
+                   <h3>{movie.name}</h3>
+                   <p>Rating: {movie.rating}</p>
+               </div>)
+
+            })}
         </div>
     );
 };
