@@ -1,15 +1,23 @@
-using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Настройка CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("http://localhost:5173") // Замените на URL вашего Frontend
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+});
+
+// Добавление служб в контейнер
 builder.Services.AddRazorPages();
 builder.Services.AddControllers(); // Убедитесь, что контроллеры добавлены
 
-var app = builder.Build();
+var app = builder.Build(); // Здесь мы создаем приложение
 
-// Configure the HTTP request pipeline.
+// Настройка HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -18,37 +26,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Убедитесь, что статические файлы не обрабатываются здесь, если Frontend работает на другом хосте
-// app.UseStaticFiles(new StaticFileOptions
-// {
-//     FileProvider = new PhysicalFileProvider(@"C:\Users\sem06\source\repos\Choosy\Frontend"),
-//     RequestPath = ""
-// });
-
 app.UseRouting();
+
+// Переместите CORS перед авторизацией
+//app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
 // Настройка маршрутизации
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers(); // Обработка API запросов
-
-    // Если Frontend работает на другом хосте, вам не нужно перенаправлять запросы на index.html
-    // Если вы хотите, чтобы ваш Backend возвращал CORS заголовки, добавьте CORS политику
-});
-
-// Если вы хотите использовать CORS, добавьте следующую строку
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        builder => builder.WithOrigins("http://localhost:5173/") // Замените на URL вашего Frontend
-                          .AllowAnyHeader()
-                          .AllowAnyMethod());
-});
-
-app.UseCors("AllowFrontend");
-
+app.MapControllers(); // Обработка API запросов
 app.MapRazorPages();
 
 app.Run();

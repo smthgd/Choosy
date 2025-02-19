@@ -9,6 +9,7 @@ using System;
 public class RoomController : ControllerBase
 {
     private static Dictionary<string, List<Movie>> rooms = new Dictionary<string, List<Movie>>();
+    
     private static Dictionary<string, List<int>> userChoices = new Dictionary<string, List<int>>();
 
     [HttpPost("create")]
