@@ -9,7 +9,7 @@ using System;
 public class RoomController : ControllerBase
 {
     private static Dictionary<string, List<Movie>> rooms = new Dictionary<string, List<Movie>>();
-    
+
     private static Dictionary<string, List<int>> userChoices = new Dictionary<string, List<int>>();
 
     [HttpPost("create")]
@@ -64,6 +64,8 @@ public class RoomController : ControllerBase
                         PosterUrl = m.Poster.Url // Используем URL постера из объекта Poster
                     }).ToList();
 
+                    rooms[roomCode] = movies;
+
                     return Ok(movies);
                 }
             }
@@ -72,6 +74,33 @@ public class RoomController : ControllerBase
         }
     }
 
+    [HttpGet("{roomCode}/next-movie")]
+    public IActionResult GetNextMovie(string roomCode, [FromQuery] string userId)
+    {
+        if (!rooms.ContainsKey(roomCode))
+        {
+            return NotFound("Room not found");
+        }
+
+        // Получаем список выборов пользователя, если он существует
+        List<int> userChoicesList;
+        if (!userChoices.TryGetValue(userId, out userChoicesList))
+        {
+            userChoicesList = new List<int>();
+        }
+
+        var movies = rooms[roomCode];
+
+        // Получаем следующий фильм, который еще не был просмотрен
+        var nextMovie = movies.FirstOrDefault(m => !userChoicesList.Contains(m.Id));
+
+        if (nextMovie != null)
+        {
+            return Ok(nextMovie);
+        }
+
+        return NotFound("No more movies available");
+    }
 
     [HttpPost("{roomCode}/swipe")]
     public IActionResult Swipe(string roomCode, [FromBody] int movieId, string userId)
