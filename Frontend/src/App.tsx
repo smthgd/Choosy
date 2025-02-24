@@ -57,7 +57,7 @@ const App: React.FC = () => {
 
     const handleSwipe = async (direction: 'left' | 'right') => {
         if (currentMovie) {
-            const response = await fetch(`http://localhost:5104/api/room/${roomCode}/swipe`, {
+            const response = await fetch(`http://localhost:5104/api/room/${roomCode}/swipe?userId=${'user1'}`, { // поменять айдишник
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

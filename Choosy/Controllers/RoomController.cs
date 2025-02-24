@@ -103,7 +103,7 @@ public class RoomController : ControllerBase
     }
 
     [HttpPost("{roomCode}/swipe")]
-    public IActionResult Swipe(string roomCode, [FromBody] int movieId, string userId)
+    public IActionResult Swipe(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
     {
         if (!rooms.ContainsKey(roomCode))
         {
