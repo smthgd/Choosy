@@ -64,7 +64,7 @@ const App: React.FC = () => {
     const handleSwipe = async (direction: 'left' | 'right') => {
         if (currentMovie) {
             if (userId){
-                const response = await fetch(`http://localhost:5104/api/room/${roomCode}/swipe?userId=${userId}`, { // поменять айдишник
+                const response = await fetch(`http://localhost:5104/api/room/${roomCode}/watched-movies?userId=${userId}`, { // поменять айдишник
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -74,8 +74,22 @@ const App: React.FC = () => {
     
                 if (response.ok) {
                     if (direction === 'right') {
-                        setLikedMovies((prev) => [...prev, currentMovie]); // Добавляем фильм в список понравившихся
+                        setLikedMovies((prev) => { 
+                            const updatedLikedMovies = [...prev, currentMovie]; // Обновляем список понравившихся
+
+                            // Вызываем метод MatchChecking с likedMovies
+                            fetch(`http://localhost:5104/api/room/${roomCode}/match-checking?userId=${userId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(currentMovie.id), 
+                            });
+
+                            return updatedLikedMovies; // Возвращаем обновленный список
+                        });
                     }
+
                     await getNextMovie(roomCode, userId); // Запрашиваем следующий фильм. Нужно поменять айдишник
                 } else {
                     alert('Error while swiping');
