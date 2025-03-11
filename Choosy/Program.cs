@@ -53,6 +53,7 @@ app.Map("/ws", async (HttpContext context, WebSocketHandler webSocketHandler) =>
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
         var userId = Guid.NewGuid().ToString(); // Генерируем уникальный идентификатор для пользователя
         await webSocketHandler.HandleWebSocket(webSocket, userId);
+        await webSocketHandler.SendMessage(userId, $"userId: {userId}"); // Отправляем userId на фронтенд
     }
 });
 

@@ -11,7 +11,8 @@ const App: React.FC = () => {
     const [likedMovies, setLikedMovies] = useState<any[]>([]); // Список понравившихся фильмов
     const [currentMovie, setCurrentMovie] = useState<any>(null);
     const [socket, setSocket] = useState<WebSocket | null>(null);
-    
+    const [userId, setUserId] = useState<string | null>(null);
+     
     const createRoom = async () => {
         const response = await fetch('http://localhost:5104/api/room/create', {
             method: 'POST',
@@ -29,8 +30,12 @@ const App: React.FC = () => {
         });
         if (response.ok) {
             await getMovies(roomCode);
-            const userId = 'user1'; // Замените на реальный идентификатор пользователя
-            await getNextMovie(roomCode, userId);
+            if (userId){
+                await getNextMovie(roomCode, userId);
+            }
+            else{
+                alert('User ID is not available')
+            }
         } else {
             alert('Room not found');
         }
@@ -58,21 +63,25 @@ const App: React.FC = () => {
 
     const handleSwipe = async (direction: 'left' | 'right') => {
         if (currentMovie) {
-            const response = await fetch(`http://localhost:5104/api/room/${roomCode}/swipe?userId=${'user1'}`, { // поменять айдишник
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(currentMovie.id), // Отправляем ID текущего фильма
-            });
+            if (userId){
+                const response = await fetch(`http://localhost:5104/api/room/${roomCode}/swipe?userId=${userId}`, { // поменять айдишник
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentMovie.id), // Отправляем ID текущего фильма
+                });
     
-            if (response.ok) {
-                if (direction === 'right') {
-                    setLikedMovies((prev) => [...prev, currentMovie]); // Добавляем фильм в список понравившихся
+                if (response.ok) {
+                    if (direction === 'right') {
+                        setLikedMovies((prev) => [...prev, currentMovie]); // Добавляем фильм в список понравившихся
+                    }
+                    await getNextMovie(roomCode, userId); // Запрашиваем следующий фильм. Нужно поменять айдишник
+                } else {
+                    alert('Error while swiping');
                 }
-                await getNextMovie(roomCode, 'user1'); // Запрашиваем следующий фильм. Нужно поменять айдишник
             } else {
-                alert('Error while swiping');
+                alert('User ID is not available')
             }
         }
     };
@@ -83,7 +92,14 @@ const App: React.FC = () => {
 
         newSocket.onmessage = (event) => {
             const message = event.data;
-            alert(message); // Здесь вы можете обработать сообщение, например, показать уведомление
+            if  (typeof message === 'string' && message.startsWith('userId:')) {
+                // Предполагаем, что сервер отправляет userId в формате "userId: <значение>"
+                const id = message.split(': ')[1];
+                setUserId(id);
+            }
+            else{
+                alert(message); // Здесь вы можете обработать сообщение, например, показать уведомление
+            }
         };
 
         newSocket.onclose = () => {
@@ -113,6 +129,7 @@ const App: React.FC = () => {
                 ) : (
                     <p>Loading movie...</p>
                 )}
+                <ul>{userId}</ul>
     
                 {likedMovies.length > 0 && (
                     <div>
