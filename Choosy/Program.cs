@@ -13,6 +13,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddRazorPages();
 builder.Services.AddControllers(); // Убедитесь, что контроллеры добавлены
 
+// Добавляем WebSocketHandler как Singleton
+builder.Services.AddSingleton<WebSocketHandler>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -40,5 +43,17 @@ app.UseAuthorization();
 // Настройка маршрутизации
 app.MapControllers(); // Обработка API запросов
 app.MapRazorPages();
+
+// Добавьте обработку WebSocket соединений
+app.UseWebSockets();
+app.Map("/ws", async (HttpContext context, WebSocketHandler webSocketHandler) =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        var userId = Guid.NewGuid().ToString(); // Генерируем уникальный идентификатор для пользователя
+        await webSocketHandler.HandleWebSocket(webSocket, userId);
+    }
+});
 
 app.Run();

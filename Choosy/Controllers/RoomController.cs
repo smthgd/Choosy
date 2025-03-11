@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.WebSockets;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -11,6 +12,13 @@ public class RoomController : ControllerBase
     private static Dictionary<string, List<Movie>> rooms = new Dictionary<string, List<Movie>>();
 
     private static Dictionary<string, List<int>> userChoices = new Dictionary<string, List<int>>();
+
+    private readonly WebSocketHandler _webSocketHandler;
+
+    public RoomController(WebSocketHandler webSocketHandler)
+    {
+        _webSocketHandler = webSocketHandler;
+    }
 
     [HttpPost("create")]
     public IActionResult CreateRoom()
@@ -103,7 +111,7 @@ public class RoomController : ControllerBase
     }
 
     [HttpPost("{roomCode}/swipe")]
-    public IActionResult Swipe(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
+    public async Task<IActionResult> Swipe(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
     {
         if (!rooms.ContainsKey(roomCode))
         {
@@ -120,6 +128,14 @@ public class RoomController : ControllerBase
         // Проверка на совпадение
         if (userChoices.Values.All(choices => choices.Contains(movieId)))
         {
+            // Отправка уведомления через WebSocket
+            var message = $"Match found for movie ID: {movieId}";
+
+            foreach (var user in userChoices.Keys)
+            {
+                await _webSocketHandler.SendMessage(user, message);
+            }
+
             return Ok("Match found!");
         }
 

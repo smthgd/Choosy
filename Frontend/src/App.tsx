@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect  } from 'react';
 import CreateRoom from './components/CreateRoom';
 import JoinRoom from './components/JoinRoom';
 import MovieList from './components/MovieList/MovieList';
@@ -10,6 +10,7 @@ const App: React.FC = () => {
     const [movies, setMovies] = useState<any[]>([]); // Замените any на конкретный тип, если у вас есть интерфейс для фильмов
     const [likedMovies, setLikedMovies] = useState<any[]>([]); // Список понравившихся фильмов
     const [currentMovie, setCurrentMovie] = useState<any>(null);
+    const [socket, setSocket] = useState<WebSocket | null>(null);
     
     const createRoom = async () => {
         const response = await fetch('http://localhost:5104/api/room/create', {
@@ -75,6 +76,27 @@ const App: React.FC = () => {
             }
         }
     };
+
+    useEffect(() => {
+        // Подключение к WebSocket
+        const newSocket = new WebSocket('ws://localhost:5104/ws'); // Замените на ваш URL WebSocket
+
+        newSocket.onmessage = (event) => {
+            const message = event.data;
+            alert(message); // Здесь вы можете обработать сообщение, например, показать уведомление
+        };
+
+        newSocket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        setSocket(newSocket);
+
+        // Очистка при размонтировании компонента
+        return () => {
+            newSocket.close();
+        };
+    }, []);
 
     return (
         <>
