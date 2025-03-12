@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.WebSockets;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -10,7 +11,16 @@ public class RoomController : ControllerBase
 {
     private static Dictionary<string, List<Movie>> rooms = new Dictionary<string, List<Movie>>();
 
-    private static Dictionary<string, List<int>> userChoices = new Dictionary<string, List<int>>();
+    private static Dictionary<string, List<int>> watchedMovies = new Dictionary<string, List<int>>();
+
+    private static Dictionary<string, List<int>> likedMovies = new Dictionary<string, List<int>>();
+
+    private readonly WebSocketHandler _webSocketHandler;
+
+    public RoomController(WebSocketHandler webSocketHandler)
+    {
+        _webSocketHandler = webSocketHandler;
+    }
 
     [HttpPost("create")]
     public IActionResult CreateRoom()
@@ -83,16 +93,17 @@ public class RoomController : ControllerBase
         }
 
         // Получаем список выборов пользователя, если он существует
-        List<int> userChoicesList;
-        if (!userChoices.TryGetValue(userId, out userChoicesList))
+        List<int> watchedMoviesList;
+
+        if (!watchedMovies.TryGetValue(userId, out watchedMoviesList))
         {
-            userChoicesList = new List<int>();
+            watchedMoviesList = new List<int>();
         }
 
         var movies = rooms[roomCode];
 
         // Получаем следующий фильм, который еще не был просмотрен
-        var nextMovie = movies.FirstOrDefault(m => !userChoicesList.Contains(m.Id));
+        var nextMovie = movies.FirstOrDefault(m => !watchedMoviesList.Contains(m.Id));
 
         if (nextMovie != null)
         {
@@ -102,24 +113,50 @@ public class RoomController : ControllerBase
         return NotFound("No more movies available");
     }
 
-    [HttpPost("{roomCode}/swipe")]
-    public IActionResult Swipe(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
+    [HttpPost("{roomCode}/watched-movies")]
+    public async Task<IActionResult> AddWatchedMovie(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
     {
         if (!rooms.ContainsKey(roomCode))
         {
             return NotFound("Room not found");
         }
 
-        if (!userChoices.ContainsKey(userId))
+        if (!watchedMovies.ContainsKey(userId))
         {
-            userChoices[userId] = new List<int>();
+            watchedMovies[userId] = new List<int>();
         }
 
-        userChoices[userId].Add(movieId);
+        watchedMovies[userId].Add(movieId);
+
+        return Ok("Movie added in watched");
+    }
+
+    [HttpPost("{roomCode}/match-checking")]
+    public async Task<IActionResult> MatchChecking(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
+    {
+        if (!rooms.ContainsKey(roomCode))
+        {
+            return NotFound("Room not found");
+        }
+
+        if (!likedMovies.ContainsKey(userId))
+        {
+            likedMovies[userId] = new List<int>();
+        }
+
+        likedMovies[userId].Add(movieId);
 
         // Проверка на совпадение
-        if (userChoices.Values.All(choices => choices.Contains(movieId)))
+        if (likedMovies.Values.All(choices => choices.Contains(movieId)) && likedMovies.Count != 1)
         {
+            // Отправка уведомления через WebSocket
+            var message = $"Match found for movie ID: {movieId}";
+
+            foreach (var user in likedMovies.Keys)
+            {
+                await _webSocketHandler.SendMessage(user, message);
+            }
+
             return Ok("Match found!");
         }
 
