@@ -3,6 +3,7 @@ import CreateRoom from './components/CreateRoom';
 import JoinRoom from './components/JoinRoom';
 import MovieList from './components/MovieList/MovieList';
 import MovieCard from './components/MovieCard';
+import Register from './components/Register';
 import './App.css';
 
 const App: React.FC = () => {
@@ -132,6 +133,7 @@ const App: React.FC = () => {
         <>
             <div>
                 <h1>Movie Swipe App</h1>
+                <Register />
                 <CreateRoom onCreate={createRoom} />
                 <JoinRoom roomCode={roomCode} onJoin={joinRoom} onChange={(e) => setRoomCode(e.target.value)} />
                 
