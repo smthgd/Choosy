@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -14,8 +15,22 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] User user)
+    public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
     {
+        // Проверка существования пользователя
+        if (await _context.Users.AnyAsync(u => u.Username == registrationDto.Username))
+        {
+            return BadRequest("Username already exists");
+        }
+        
+
+        // Создание нового пользователя
+        var user = new User
+        {
+            Username = registrationDto.Username,
+            Email = registrationDto.Email
+        };
+
         // Хэширование пароля
         using (var hmac = new HMACSHA512())
         {
