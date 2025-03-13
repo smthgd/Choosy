@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
         // Хэширование пароля
         using (var hmac = new HMACSHA512())
         {
-            user.PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(user.PasswordHash)));
+            user.PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(registrationDto.Password)));
         }
 
         _context.Users.Add(user);
