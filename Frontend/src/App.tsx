@@ -5,6 +5,7 @@ import MovieList from './components/MovieList/MovieList';
 import MovieCard from './components/MovieCard';
 import Register from './components/Register';
 import './App.css';
+import logo from './assets/ChoosyLogo.png';
 
 const App: React.FC = () => {
     const [roomCode, setRoomCode] = useState<string>('');
@@ -132,7 +133,7 @@ const App: React.FC = () => {
     return (
         <>
             <div>
-                <h1>Movie Swipe App</h1>
+                <img src={logo} alt="Logo" className='logo' />
                 <Register />
                 <CreateRoom onCreate={createRoom} />
                 <JoinRoom roomCode={roomCode} onJoin={joinRoom} onChange={(e) => setRoomCode(e.target.value)} />
