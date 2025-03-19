@@ -132,8 +132,26 @@ const App: React.FC = () => {
 
     return (
         <>
+            <header className="app-header">
+                <h1 className="app-title">Choosy</h1>
+                <div className="header-buttons">
+                    <button className="login-button" onClick={() => console.log('Log in button clicked!')}>
+                        Log in
+                    </button>
+                    <button className="register-button" onClick={() => console.log('Register button clicked!')}>
+                        Register
+                    </button>
+                </div>
+            </header>
             <div>
                 <img src={logo} alt="Logo" className='logo' />
+                <div className='blur-background'>
+                    <p>
+                        We're giving you time. The time you can spend not choosing a movie, but watching it. Just connect with a friend,
+                        partner, or family member and start swiping through suggested movies. As soon as the "match" happens, 
+                        you will get your perfect movie for a great evening!
+                    </p>
+                </div>
                 <Register />
                 <CreateRoom onCreate={createRoom} />
                 <JoinRoom roomCode={roomCode} onJoin={joinRoom} onChange={(e) => setRoomCode(e.target.value)} />

@@ -51,3 +51,71 @@ body {
   background-position: center; /* Центрирование изображения */
   background-repeat: no-repeat; /* Запрет повторения изображения */
 }
+
+.blur-background {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.5); /* Затемненный фон */
+  backdrop-filter: blur(10px); /* Эффект размытия */
+  color: white; /* Цвет текста */
+  padding: 20px; /* Отступы */
+  border-radius: 10px; /* Закругленные углы */
+  margin: 20px auto; /* Отступы сверху и снизу */
+  width: 800px; /* Ширина блока (можно изменить на нужное значение) */
+  text-align: center; /* Центрирование текста */
+  font-size: 1.5rem; /* Размер шрифта (можно изменить на нужное значение) */
+}
+
+.app-header {
+  position: fixed; /* Фиксируем шапку в верхней части страницы */
+  top: 0; /* Прижимаем к верхней части */
+  left: 0; /* Прижимаем к левому краю */
+  right: 0; /* Прижимаем к правому краю */
+  display: flex; /* Используем flexbox для выравнивания элементов */
+  justify-content: space-between; /* Размещаем элементы по краям */
+  align-items: center; /* Центрируем элементы по вертикали */
+  padding: 10px 60px; /* Отступы */
+  background-color: rgba(0, 0, 0, 0.5); /* Затемненный фон */
+  backdrop-filter: blur(10px); /* Эффект размытия */
+  color: white; /* Цвет текста */
+  z-index: 1000; /* Устанавливаем высокий z-index, чтобы шапка была поверх других элементов */
+}
+
+.app-title {
+  font-size: 1.5rem; /* Размер шрифта для названия */
+}
+
+.register-button {
+  background-color: #9ad1f3; /* Цвет фона кнопки */
+  border: none; /* Убираем рамку */
+  border-radius: 5px; /* Закругленные углы */
+  padding: 10px 15px; /* Отступы внутри кнопки */
+  cursor: pointer; /* Указатель при наведении */
+  font-size: 1rem; /* Размер шрифта для кнопки */
+}
+
+.register-button:hover {
+  background-color: #7cabf4; /* Цвет фона кнопки при наведении */
+}
+
+.header-buttons {
+  display: flex; /* Используем flexbox для выравнивания кнопок */
+  align-items: center; /* Центрируем кнопки по вертикали */
+}
+
+.login-button {
+  background-color: transparent; /* Прозрачный фон */
+  border: 2px solid transparent; /* Прозрачная обводка */
+  border-radius: 5px; /* Закругленные углы */
+  padding: 10px 15px; /* Отступы внутри кнопки */
+  cursor: pointer; /* Указатель при наведении */
+  font-size: 1rem; /* Размер шрифта для кнопки */
+  margin-right: 20px; /* Отступ справа от кнопки "Log in" */
+  color: #61dafb; /* Цвет текста */
+  transition: background-color 0.3s, border-color 0.3s; /* Плавный переход для фона и обводки */
+}
+
+.login-button:hover {
+  background-color: #61dafb; /* Цвет фона кнопки при наведении */
+  border-color: #21a1f1; /* Цвет обводки при наведении */
+  color: white; /* Цвет текста при наведении */
+}
