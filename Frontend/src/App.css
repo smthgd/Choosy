@@ -104,8 +104,8 @@ body {
 
 .login-button {
   background-color: transparent; /* Прозрачный фон */
-  border: 2px solid transparent; /* Прозрачная обводка */
-  border-radius: 5px; /* Закругленные углы */
+  border: none; /* Убираем границу */
+  border-radius: 4px; /* Закругленные углы */
   padding: 10px 15px; /* Отступы внутри кнопки */
   cursor: pointer; /* Указатель при наведении */
   font-size: 1rem; /* Размер шрифта для кнопки */
