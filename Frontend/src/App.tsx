@@ -4,6 +4,7 @@ import JoinRoom from './components/JoinRoom';
 import MovieList from './components/MovieList/MovieList';
 import MovieCard from './components/MovieCard';
 import Register from './components/Register/Register';
+import Login from './components/Login/Login';
 import './App.css';
 import logo from './assets/ChoosyLogo.png';
 
@@ -15,6 +16,7 @@ const App: React.FC = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
 
     const openRegisterModal = () => {
         setIsRegisterOpen(true);
@@ -22,6 +24,14 @@ const App: React.FC = () => {
 
     const closeRegisterModal = () => {
         setIsRegisterOpen(false);
+    };
+
+    const openLoginModal = () => {
+        setIsLoginOpen(true);
+    };
+
+    const closeLoginModal = () => {
+        setIsLoginOpen(false);
     };
      
     const createRoom = async () => {
@@ -144,7 +154,7 @@ const App: React.FC = () => {
             <header className="app-header">
                 <h1 className="app-title">Choosy</h1>
                 <div className="header-buttons">
-                    <button className="login-button" onClick={() => console.log('Log in button clicked!')}>
+                    <button className="login-button" onClick={openLoginModal}>
                         Log in
                     </button>
                     <button className="register-button" onClick={openRegisterModal}>
@@ -187,6 +197,7 @@ const App: React.FC = () => {
                 )}
 
                 {isRegisterOpen && <Register onClose={() => closeRegisterModal()} />}
+                {isLoginOpen && <Login onClose={closeLoginModal} />}
             </div>
         </>
     );

@@ -42,4 +42,27 @@ public class AuthController : ControllerBase
 
         return Ok("User registered successfully");
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] UserRegistrationDto loginDto)
+    {
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == loginDto.Email);
+    
+        if (user == null)
+        {
+            return Unauthorized("Invalid username or password");
+        }
+
+        using (var hmac = new HMACSHA512())
+        {
+            var computedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password)));
+            
+            if (computedHash != user.PasswordHash)
+            {
+                return Unauthorized("Invalid email or password");
+            }
+        }
+
+        return Ok("User logged in successfully");
+    }
 }
