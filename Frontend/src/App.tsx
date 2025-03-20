@@ -3,7 +3,7 @@ import CreateRoom from './components/CreateRoom';
 import JoinRoom from './components/JoinRoom';
 import MovieList from './components/MovieList/MovieList';
 import MovieCard from './components/MovieCard';
-import Register from './components/Register';
+import Register from './components/Register/Register';
 import './App.css';
 import logo from './assets/ChoosyLogo.png';
 
@@ -14,6 +14,15 @@ const App: React.FC = () => {
     const [currentMovie, setCurrentMovie] = useState<any>(null);
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+    const openRegisterModal = () => {
+        setIsRegisterOpen(true);
+    };
+
+    const closeRegisterModal = () => {
+        setIsRegisterOpen(false);
+    };
      
     const createRoom = async () => {
         const response = await fetch('http://localhost:5104/api/room/create', {
@@ -138,8 +147,8 @@ const App: React.FC = () => {
                     <button className="login-button" onClick={() => console.log('Log in button clicked!')}>
                         Log in
                     </button>
-                    <button className="register-button" onClick={() => console.log('Register button clicked!')}>
-                        Register
+                    <button className="register-button" onClick={openRegisterModal}>
+                        Sign up
                     </button>
                 </div>
             </header>
@@ -152,7 +161,7 @@ const App: React.FC = () => {
                         you will get your perfect movie for a great evening!
                     </p>
                 </div>
-                <Register />
+
                 <CreateRoom onCreate={createRoom} />
                 <JoinRoom roomCode={roomCode} onJoin={joinRoom} onChange={(e) => setRoomCode(e.target.value)} />
                 
@@ -176,6 +185,8 @@ const App: React.FC = () => {
                         </ul>
                     </div>
                 )}
+
+                {isRegisterOpen && <Register onClose={() => closeRegisterModal()} />}
             </div>
         </>
     );
