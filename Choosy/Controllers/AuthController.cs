@@ -9,9 +9,12 @@ public class AuthController : ControllerBase
 {
     private readonly ChoosyDbContext _context;
 
-    public AuthController(ChoosyDbContext context)
+    private readonly HashingService _hashingService;
+
+    public AuthController(ChoosyDbContext context, HashingService hashingService)
     {
         _context = context;
+        _hashingService = hashingService;
     }
 
     [HttpPost("register")]
@@ -22,20 +25,14 @@ public class AuthController : ControllerBase
         {
             return BadRequest("Username already exists");
         }
-        
 
         // Создание нового пользователя
         var user = new User
         {
             Username = registrationDto.Username,
-            Email = registrationDto.Email
+            Email = registrationDto.Email,
+            PasswordHash = _hashingService.HashPassword(registrationDto.Password)
         };
-
-        // Хэширование пароля
-        using (var hmac = new HMACSHA512())
-        {
-            user.PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(registrationDto.Password)));
-        }
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
@@ -53,14 +50,9 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid username or password");
         }
 
-        using (var hmac = new HMACSHA512())
+        if (user == null || !_hashingService.VerifyPassword(loginDto.Password, user.PasswordHash))
         {
-            var computedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password)));
-            
-            if (computedHash != user.PasswordHash)
-            {
-                return Unauthorized("Invalid email or password");
-            }
+            return Unauthorized("Invalid email or password");
         }
 
         return Ok("User logged in successfully");

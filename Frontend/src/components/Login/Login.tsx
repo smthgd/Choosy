@@ -5,7 +5,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onClose }) => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleLogin = async () => {
@@ -14,7 +14,7 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ email, password }),
         });
 
         if (response.ok) {
@@ -34,8 +34,8 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
                 <hr className="divider" /> {/* Горизонтальная линия */}
                 <input
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
                 />
                 <input

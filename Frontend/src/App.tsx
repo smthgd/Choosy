@@ -19,6 +19,7 @@ const App: React.FC = () => {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
 
     const openRegisterModal = () => {
+        setIsLoginOpen(false);
         setIsRegisterOpen(true);
     };
 
@@ -27,6 +28,7 @@ const App: React.FC = () => {
     };
 
     const openLoginModal = () => {
+        setIsRegisterOpen(false);
         setIsLoginOpen(true);
     };
 

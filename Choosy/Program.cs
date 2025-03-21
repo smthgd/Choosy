@@ -24,6 +24,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ChoosyDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Чтение ключа из конфигурации
+var hashKey = builder.Configuration["HashKey"];
+builder.Services.AddSingleton(new HashingService(hashKey)); // Регистрация сервиса хэширования
+
 var app = builder.Build(); // Здесь мы создаем приложение
 
 // Настройка HTTP request pipeline
