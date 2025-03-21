@@ -17,6 +17,11 @@ const App: React.FC = () => {
     const [userId, setUserId] = useState<string | null>(null);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
+    const [isStarted, setIsStarted] = useState(false); // Состояние для управления видимостью параграфа
+
+    const handleButtonClick = () => {
+        setIsStarted(true); // Скрываем параграф
+    };
 
     const openRegisterModal = () => {
         setIsLoginOpen(false);
@@ -34,44 +39,6 @@ const App: React.FC = () => {
 
     const closeLoginModal = () => {
         setIsLoginOpen(false);
-    };
-     
-    const createRoom = async () => {
-        const response = await fetch('http://localhost:5104/api/room/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        const newRoomCode = await response.text();
-        setRoomCode(newRoomCode);
-    };
-
-    const joinRoom = async () => {
-        const response = await fetch(`http://localhost:5104/api/room/join/${roomCode}`, {
-            method: 'POST',
-        });
-        if (response.ok) {
-            await getMovies(roomCode);
-            if (userId){
-                await getNextMovie(roomCode, userId);
-            }
-            else{
-                alert('User ID is not available')
-            }
-        } else {
-            alert('Room not found');
-        }
-    };
-
-    const getMovies = async (roomCode: string) => {
-        const response = await fetch(`http://localhost:5104/api/room/${roomCode}/movies`);
-        if (response.ok) {
-            const moviesData = await response.json();
-            setMovies(moviesData);
-        } else {
-            alert('Failed to load movies');
-        }
     };
 
     const getNextMovie = async (roomCode: string, userId: string) => {
@@ -166,26 +133,43 @@ const App: React.FC = () => {
             </header>
             <div>
                 <img src={logo} alt="Logo" className='logo' />
-                <div className='blur-background'>
-                    <p>
-                        We're giving you time. The time you can spend not choosing a movie, but watching it. Just connect with a friend,
-                        partner, or family member and start swiping through suggested movies. As soon as the "match" happens, 
-                        you will get your perfect movie for a great evening!
-                    </p>
-                </div>
+                {!isStarted && (
+                    <>
+                        <div className='blur-background'>
+                            <p>
+                                We're giving you time. The time you can spend not choosing a movie, but watching it. Just connect with a friend,
+                                partner, or family member and start swiping through suggested movies. As soon as the "match" happens, 
+                                you will get your perfect movie for a great evening!
+                            </p>
+                        </div>
 
-                <CreateRoom onCreate={createRoom} />
-                <JoinRoom roomCode={roomCode} onJoin={joinRoom} onChange={(e) => setRoomCode(e.target.value)} />
-                
-                {currentMovie ? (
-                    <MovieCard 
-                        movie={currentMovie} 
-                        onSwipe={(direction) => handleSwipe(direction)} 
-                    />
-                ) : (
-                    <p>Loading movie...</p>
+                        <button className="register-button" onClick={handleButtonClick}>
+                            Get started
+                        </button>
+                    </>
                 )}
-                <ul>{userId}</ul>
+
+                {isStarted && (
+                    <>
+                        <JoinRoom
+                            roomCode={roomCode}
+                            setRoomCode={setRoomCode} 
+                            userId={userId} 
+                            CreateRoomComponent={CreateRoom}
+                            setCurrentMovie={setCurrentMovie}
+                        />
+
+                        {currentMovie ? (
+                            <MovieCard 
+                                movie={currentMovie} 
+                                onSwipe={(direction) => handleSwipe(direction)} 
+                            />
+                        ) : (
+                            <p>Loading movie...</p>
+                        )}
+                        <ul>{userId}</ul>
+                    </>
+                )}
     
                 {likedMovies.length > 0 && (
                     <div>

@@ -1,0 +1,35 @@
+.input {
+    margin-bottom: 20px;
+    width: 100%; /* Занимает всю ширину родительского контейнера */
+    padding: 10px; /* Внутренний отступ */
+    border: 2px solid #9ad1f3; /* Цвет рамки */
+    border-radius: 6px; /* Закругленные углы */
+    font-size: 16px; /* Размер шрифта */
+    transition: border-color 0.3s; /* Плавный переход для изменения цвета рамки */
+    box-sizing: border-box; /* Включает padding и border в общую ширину */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Стили для кнопки */
+.button {
+    margin-bottom: 20px;
+    background-color: #fcfcfc; /* Цвет фона */
+    color: rgb(0, 0, 0); /* Цвет текста */
+    padding: 10px 20px; /* Внутренние отступы */
+    border: none; /* Убираем рамку */
+    font-size: 16px; /* Размер шрифта */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background-color 0.3s; /* Плавный переход для изменения цвета фона */
+    border-radius: 18px; /* Закругленные углы */
+}
+
+/* Стили для кнопки при наведении */
+.button:hover {
+    background-color: #7cabf4; /* Цвет фона кнопки при наведении */
+}
+
+.join-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center; /* Центрируем кнопки */
+}

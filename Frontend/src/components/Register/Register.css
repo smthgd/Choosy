@@ -20,7 +20,6 @@
     background-color: #fcfcfc; /* Цвет фона кнопки */
     color: #000000; /* Цвет текста кнопки */
     border-radius: 4px; /* Закругленные углы */
-    cursor: pointer; /* Указатель при наведении */
     box-sizing: border-box; /* Включает padding и border в общую ширину */
   }
   
