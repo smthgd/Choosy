@@ -165,9 +165,9 @@ const App: React.FC = () => {
                                 onSwipe={(direction) => handleSwipe(direction)} 
                             />
                         ) : (
-                            <p>Loading movie...</p>
+                            <p></p> // TODO: заменить на чтение состояния
                         )}
-                        <ul>{userId}</ul>
+                        <p>Your ID: {userId}</p>
                     </>
                 )}
     
