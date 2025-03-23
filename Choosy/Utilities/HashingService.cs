@@ -21,6 +21,7 @@ public class HashingService
     public bool VerifyPassword(string password, string storedHash)
     {
         var computedHash = HashPassword(password);
+        
         return computedHash == storedHash;
     }
 }
