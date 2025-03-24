@@ -7,4 +7,8 @@ public class User
     public string PasswordHash { get; set; }
     
     public string Email { get; set; }
+
+    public DateTime RegistrationDate { get; set; }
+
+    public ICollection<RoomUser> RoomUsers { get; set; }
 }
