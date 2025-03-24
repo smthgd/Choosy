@@ -232,4 +232,50 @@ public class RoomController : ControllerBase
 
         return Ok("Swipe recorded");
     }
+
+    [HttpGet("{roomId}/history")]
+    public async Task<IActionResult> GetRoomHistory(string roomId)
+    {
+        int roomCode = int.Parse(roomId);
+
+        // Получаем комнату по ID
+        var room = await _context.Rooms
+            .Include(r => r.MatchedFilm) // Предполагаем, что у вас есть навигационное свойство MatchedFilm
+            .FirstOrDefaultAsync(r => r.Id == roomCode);
+
+        if (room == null)
+        {
+            return NotFound("Room not found");
+        }
+
+        // Получаем пользователей в комнате
+        var roomUsers = await _context.RoomUsers
+            .Where(ru => ru.RoomId == roomCode)
+            .Select(ru => ru.UserId)
+            .ToListAsync();
+
+        var users = await _context.Users
+            .Where(u => roomUsers.Contains(u.Id))
+            .Select(u => new UserDto { Id = u.Id, Username = u.Username }) // Используем DTO для пользователей
+            .ToListAsync();
+
+        // Получаем последний смэтченный фильм
+        var matchedFilmDto = room.MatchedFilm != null ? new MatchedFilmDto
+        {
+            Id = room.MatchedFilm.Id,
+            Title = room.MatchedFilm.Name, 
+        } : null; // Проверяем на null, если MatchedFilm может быть пустым
+
+        // Формируем ответ
+        var history = new RoomHistoryDto
+        {
+            RoomId = room.Id,
+            CreationDate = room.CreationDate,
+            Users = users,
+            MatchedFilms = matchedFilmDto != null ? new List<MatchedFilmDto> { matchedFilmDto } : new List<MatchedFilmDto>() // Оборачиваем в список
+        };
+
+        return Ok(history);
+    }
+
 }

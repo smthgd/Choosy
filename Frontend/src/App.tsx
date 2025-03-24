@@ -20,6 +20,8 @@ const App: React.FC = () => {
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isStarted, setIsStarted] = useState(false); // Состояние для управления видимостью параграфа
+    const [roomHistory, setRoomHistory] = useState<any>(null); // Состояние для хранения истории комнаты
+    const [isRoomHistoryVisible, setIsRoomHistoryVisible] = useState(false);
 
     const handleButtonClick = () => {
         setIsStarted(true); // Скрываем параграф
@@ -46,6 +48,12 @@ const App: React.FC = () => {
     const handleLogout = () => {
         setUserId(null);
         setUserName(null);
+    };
+
+    const handleShowRoomHistory = () => {
+        if (roomCode) {
+            fetchRoomHistory(roomCode);
+        }
     };
 
     const getNextMovie = async (roomCode: string, userId: string) => {
@@ -97,6 +105,21 @@ const App: React.FC = () => {
         }
     };
 
+    const fetchRoomHistory = async (roomCode: string) => {
+        try {
+            const response = await fetch(`http://localhost:5104/api/room/${roomCode}/history`);
+            if (response.ok) {
+                const data = await response.json();
+                setRoomHistory(data);
+                setIsRoomHistoryVisible(true);
+            } else {
+                alert('Error fetching room history');
+            }
+        } catch (error) {
+            console.error('Error fetching room history:', error);
+        }
+    };
+
     useEffect(() => {
         // Подключение к WebSocket
         const newSocket = new WebSocket('ws://localhost:5104/ws'); // Замените на ваш URL WebSocket
@@ -131,7 +154,12 @@ const App: React.FC = () => {
                 <h1 className="app-title">Choosy</h1>
                 <div className="header-buttons">
                     {userName ? (
-                        <UserMenu userName={userName} onLogout={handleLogout} />
+                        <UserMenu 
+                            userName={userName} 
+                            onLogout={handleLogout} 
+                            roomCode={"47534720"!} 
+                            onShowRoomHistory={handleShowRoomHistory}
+                        />
                     ) : (
                         <>
                             <button className="login-button" onClick={openLoginModal}>
@@ -181,6 +209,28 @@ const App: React.FC = () => {
                             <p></p> // TODO: заменить на чтение состояния
                         )}
                         <p>Your ID: {userId}</p>
+
+                        {console.log(roomHistory)}
+
+                        {isRoomHistoryVisible && roomHistory && (
+                            <div>
+                                <h3>Room History</h3>
+                                <p>Room ID: {roomHistory.roomCode}</p>
+                                <p>Creation Date: {roomHistory.creationDate}</p>
+                                <h4>Users:</h4>
+                                <ul>
+                                    {roomHistory.users.map((user: any) => (
+                                        <li key={user.id}>{user.username}</li>
+                                    ))}
+                                </ul>
+                                <h4>Matched Films:</h4>
+                                <ul>
+                                    {roomHistory.matchedFilms.map((film: any) => (
+                                        <li key={film.id}>{film.title}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </>
                 )}
     
