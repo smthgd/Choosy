@@ -16,7 +16,7 @@ const JoinRoom: React.FC<JoinRoomProps> = ({ roomCode, setRoomCode, userId, Crea
             return;
         }
         
-        const response = await fetch(`http://localhost:5104/api/room/join/${roomCode}`, {
+        const response = await fetch(`http://localhost:5104/api/room/join/${roomCode}/${userId}`, {
             method: 'POST',
         });
         if (response.ok) {

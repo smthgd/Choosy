@@ -29,7 +29,8 @@ public class AuthController : ControllerBase
         {
             Username = registrationDto.Username,
             Email = registrationDto.Email,
-            PasswordHash = _hashingService.HashPassword(registrationDto.Password)
+            PasswordHash = _hashingService.HashPassword(registrationDto.Password),
+            RegistrationDate = DateTime.UtcNow
         };
 
         _context.Users.Add(user);
@@ -48,11 +49,17 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid username or password");
         }
 
-        if (user == null || !_hashingService.VerifyPassword(loginDto.Password, user.PasswordHash))
+        if (!_hashingService.VerifyPassword(loginDto.Password, user.PasswordHash))
         {
-            return Unauthorized("Invalid email or password");
+            return Unauthorized("Invalid password");
         }
 
-        return Ok("User logged in successfully");
+        var userData = new
+        {
+            userName = user.Username,
+            email = user.Email 
+        };
+
+        return Ok(userData);
     }
 }

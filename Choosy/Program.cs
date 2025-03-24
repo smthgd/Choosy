@@ -60,7 +60,8 @@ app.Map("/ws", async (HttpContext context, WebSocketHandler webSocketHandler) =>
     if (context.WebSockets.IsWebSocketRequest)
     {
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        var userId = Guid.NewGuid().ToString(); // Генерируем уникальный идентификатор для пользователя
+        var random = new Random();
+        int userId = (int)(DateTime.UtcNow.Ticks % 1000000000) + random.Next(1, 1000);
         await webSocketHandler.HandleWebSocket(webSocket, userId);
         await webSocketHandler.SendMessage(userId, $"userId: {userId}"); // Отправляем userId на фронтенд
     }

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 interface LoginProps {
     onClose: () => void;
+    setUserName: (name: string) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onClose }) => {
+const Login: React.FC<LoginProps> = ({ onClose, setUserName }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -18,9 +19,10 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
         });
 
         if (response.ok) {
+            const data = await response.json();
             alert('User logged in successfully');
+            setUserName(data.userName);
             onClose();
-            // Здесь вы можете добавить логику для сохранения токена или информации о пользователе
         } else {
             alert('Login failed');
         }

@@ -4,9 +4,9 @@ using System.Threading;
 
 public class WebSocketHandler
 {
-    private static Dictionary<string, WebSocket> _sockets = new Dictionary<string, WebSocket>();
+    private static Dictionary<int, WebSocket> _sockets = new Dictionary<int, WebSocket>();
 
-    public async Task HandleWebSocket(WebSocket webSocket, string userId)
+    public async Task HandleWebSocket(WebSocket webSocket, int userId)
     {
         _sockets[userId] = webSocket;
         
@@ -26,7 +26,7 @@ public class WebSocketHandler
         }
     }
 
-    public async Task SendMessage(string userId, string message)
+    public async Task SendMessage(int userId, string message)
     {
         if (_sockets.TryGetValue(userId, out var socket))
         {

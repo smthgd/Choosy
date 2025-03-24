@@ -1,47 +1,86 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
 public class RoomController : ControllerBase
 {
-    private static Dictionary<string, List<Movie>> rooms = new Dictionary<string, List<Movie>>();
+    private static Dictionary<Room, List<Movie>> rooms = new Dictionary<Room, List<Movie>>();
 
-    private static Dictionary<string, List<int>> watchedMovies = new Dictionary<string, List<int>>();
+    private static Dictionary<int, List<int>> watchedMovies = new Dictionary<int, List<int>>();
 
-    private static Dictionary<string, List<int>> likedMovies = new Dictionary<string, List<int>>();
+    private static Dictionary<int, List<int>> likedMovies = new Dictionary<int, List<int>>();
 
     private readonly WebSocketHandler _webSocketHandler;
 
-    public RoomController(WebSocketHandler webSocketHandler)
+    private readonly ChoosyDbContext _context;
+
+    public RoomController(ChoosyDbContext context, WebSocketHandler webSocketHandler)
     {
+        _context = context;
         _webSocketHandler = webSocketHandler;
     }
 
     [HttpPost("create")]
-    public IActionResult CreateRoom()
+    public async Task<IActionResult> CreateRoom()
     {
-        var roomCode = Guid.NewGuid().ToString();
-        rooms[roomCode] = new List<Movie>(); // Здесь вы можете добавить логику для получения фильмов из API
+        var random = new Random();
+        int roomCode = (int)(DateTime.UtcNow.Ticks % 1000000000) + random.Next(1, 1000);
+        int i = 1143242;
+
+        var room = new Room 
+        { 
+            CreationDate = DateTime.UtcNow,
+            Id = roomCode,
+            MatchedFilmId = i
+        };
+
+        i = 1100777;
+
+        _context.Rooms.Add(room);
+        await _context.SaveChangesAsync();
+
+        rooms[room] = new List<Movie>(); // Здесь вы можете добавить логику для получения фильмов из API
 
         return Ok(roomCode);
     }
 
-    [HttpPost("join/{roomCode}")]
-    public IActionResult JoinRoom(string roomCode)
+    [HttpPost("join/{roomCode}/{userId}")]
+    public async Task<IActionResult> JoinRoom(int roomCode, int userId)
     {
-        if (!rooms.ContainsKey(roomCode))
+        var room = rooms.Keys.FirstOrDefault(r => r.Id == roomCode);
+        
+        if (room == null)
         {
             return NotFound("Room not found");
+        }      
+
+        // Создание записей для пользователей в таблице RoomUser
+        var roomUser = new RoomUser
+        {
+            RoomId = room.Id,
+            UserId =+ 1
+        };
+        
+        // Добавление записей в контекст
+        _context.RoomUsers.Add(roomUser);
+        try{
+        await _context.SaveChangesAsync();
+        }
+        catch (Exception e){
+            Console.WriteLine(e);
         }
 
         return Ok();
     }
 
     [HttpGet("{roomCode}/movies")]
-    public async Task<IActionResult> GetMovies(string roomCode)
+    public async Task<IActionResult> GetMovies(int roomCode)
     {
-        if (!rooms.ContainsKey(roomCode))
+        var room = rooms.Keys.FirstOrDefault(r => r.Id == roomCode);
+
+        if (room == null)
         {
             return NotFound("Room not found");
         }
@@ -70,7 +109,7 @@ public class RoomController : ControllerBase
                         PosterUrl = m.Poster.Url // Используем URL постера из объекта Poster
                     }).ToList();
 
-                    rooms[roomCode] = movies;
+                    rooms[room] = movies;
 
                     return Ok(movies);
                 }
@@ -81,9 +120,11 @@ public class RoomController : ControllerBase
     }
 
     [HttpGet("{roomCode}/next-movie")]
-    public IActionResult GetNextMovie(string roomCode, [FromQuery] string userId)
+    public IActionResult GetNextMovie(int roomCode, [FromQuery] int userId)
     {
-        if (!rooms.ContainsKey(roomCode))
+        var room = rooms.Keys.FirstOrDefault(r => r.Id == roomCode);
+
+        if (room == null)
         {
             return NotFound("Room not found");
         }
@@ -96,7 +137,7 @@ public class RoomController : ControllerBase
             watchedMoviesList = new List<int>();
         }
 
-        var movies = rooms[roomCode];
+        var movies = rooms[room];
 
         // Получаем следующий фильм, который еще не был просмотрен
         var nextMovie = movies.FirstOrDefault(m => !watchedMoviesList.Contains(m.Id));
@@ -110,9 +151,9 @@ public class RoomController : ControllerBase
     }
 
     [HttpPost("{roomCode}/watched-movies")]
-    public async Task<IActionResult> AddWatchedMovie(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
+    public async Task<IActionResult> AddWatchedMovie(int roomCode, [FromBody] int movieId, [FromQuery] int userId)
     {
-        if (!rooms.ContainsKey(roomCode))
+        if (!rooms.Keys.Any(room => room.Id == roomCode))
         {
             return NotFound("Room not found");
         }
@@ -128,9 +169,11 @@ public class RoomController : ControllerBase
     }
 
     [HttpPost("{roomCode}/match-checking")]
-    public async Task<IActionResult> MatchChecking(string roomCode, [FromBody] int movieId, [FromQuery] string userId)
+    public async Task<IActionResult> MatchChecking(int roomCode, [FromBody] int movieId, [FromQuery] int userId)
     {
-        if (!rooms.ContainsKey(roomCode))
+        var room = rooms.Keys.FirstOrDefault(r => r.Id == roomCode);
+        
+        if (room == null)
         {
             return NotFound("Room not found");
         }
@@ -153,7 +196,38 @@ public class RoomController : ControllerBase
                 await _webSocketHandler.SendMessage(user, message);
             }
 
-            return Ok("Match found!");
+            // Получение списка фильмов из комнаты
+            if (rooms.TryGetValue(room, out var movies))
+            {
+                // Поиск фильма по movieId
+                var movie = movies.FirstOrDefault(m => m.Id == movieId);
+
+                if (movie != null)
+                {
+                    // Создание объекта MatchedFilm с реальными значениями
+                    var matchedFilm = new Movie
+                    {
+                        Id = movie.Id,
+                        Name = movie.Name,
+                        Rating = movie.Rating,
+                        PosterUrl = movie.PosterUrl
+                    };
+
+                    // Добавление фильма в контекст
+                    _context.MatchedFilms.Add(matchedFilm);
+                    await _context.SaveChangesAsync();
+
+                    // Установка связи с комнатой
+                    room.MatchedFilmId = movie.Id; // Предполагается, что у вас есть свойство MatchedFilmId в классе Room
+                    await _context.SaveChangesAsync();
+
+                    return Ok("Match found!");
+                }
+                else
+                {
+                    return NotFound("Movie not found");
+                }
+            }
         }
 
         return Ok("Swipe recorded");
