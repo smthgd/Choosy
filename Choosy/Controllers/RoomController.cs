@@ -27,16 +27,16 @@ public class RoomController : ControllerBase
     {
         var random = new Random();
         int roomCode = (int)(DateTime.UtcNow.Ticks % 1000000000) + random.Next(1, 1000);
-        int i = 1143242;
+        // int i = 1143242;
 
         var room = new Room 
         { 
             CreationDate = DateTime.UtcNow,
             Id = roomCode,
-            MatchedFilmId = i
+            // MatchedFilmId = i
         };
 
-        i = 1100777;
+        // i = 1100777;
 
         _context.Rooms.Add(room);
         await _context.SaveChangesAsync();
@@ -87,7 +87,7 @@ public class RoomController : ControllerBase
 
         using (var httpClient = new HttpClient())
         {
-            var apiKey = "KTZV0EX-47647JH-JDRJYQ8-HSENZ44"; // Замените на ваш ключ API
+            var apiKey = "KTZV0EX-47647JH-JDRJYQ8-HSENZ44";
             httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
             var response = await httpClient.GetAsync("https://api.kinopoisk.dev/v1.3/movie?limit=30");
 
@@ -105,8 +105,8 @@ public class RoomController : ControllerBase
                     {
                         Id = m.Id,
                         Name = m.Name,
-                        Rating = m.Rating.Kp, // Используем рейтинг из объекта Rating
-                        PosterUrl = m.Poster.Url // Используем URL постера из объекта Poster
+                        Rating = m.Rating.Kp,
+                        PosterUrl = m.Poster.Url
                     }).ToList();
 
                     rooms[room] = movies;
@@ -218,7 +218,7 @@ public class RoomController : ControllerBase
                     await _context.SaveChangesAsync();
 
                     // Установка связи с комнатой
-                    room.MatchedFilmId = movie.Id; // Предполагается, что у вас есть свойство MatchedFilmId в классе Room
+                    room.MatchedFilmId = movie.Id;
                     await _context.SaveChangesAsync();
 
                     return Ok("Match found!");

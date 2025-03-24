@@ -9,8 +9,7 @@ public class WebSocketHandler
     public async Task HandleWebSocket(WebSocket webSocket, int userId)
     {
         _sockets[userId] = webSocket;
-        
-        // Отправляем userId на фронтенд
+
         await SendMessage(userId, $"userId: {userId}");
 
         while (webSocket.State == WebSocketState.Open)
